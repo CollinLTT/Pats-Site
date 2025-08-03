@@ -139,7 +139,7 @@ app.delete('/api/delete/:filename', requireLogin, (req, res) => {
     });
 });
 
-// --- Public route for views (no auth) ---
+// --- Public route for website views ---
 app.get('/api/views', (req, res) => {
     try {
         const countVisit = req.query.count === 'true';
@@ -159,8 +159,6 @@ app.get('/api/views', (req, res) => {
     }
 });
 
-// --- Then your auth-protected routes ---
-app.use('/api', requireAuthMiddleware);
 
 
 
