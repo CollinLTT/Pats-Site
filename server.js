@@ -31,29 +31,38 @@ const DATA_FILE = path.join(__dirname, 'site-data.json');
 
 // ====== Auto-Migration on First Run ======
 async function migrateLegacyData() {
-    const existing = await SiteData.findOne();
-    if (existing) {
-        console.log('ℹ️ MongoDB already initialized, skipping migration.');
-        return;
-    }
-
-    if (fs.existsSync(DATA_FILE)) {
-        try {
-            const legacy = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-            await SiteData.create({
-                tagline: legacy.tagline || "💖 Welcome to Patz Brat 💖",
-                views: legacy.views || 0,
-                links: legacy.links || [],
-                images: legacy.images || []
-            });
-            console.log('✅ Migrated site-data.json to MongoDB!');
-        } catch (err) {
-            console.error('⚠️ Failed to migrate site-data.json:', err);
-            await SiteData.create({}); // create default to avoid empty DB
+    try {
+        const existing = await SiteData.findOne();
+        if (existing) {
+            console.log('ℹ️ MongoDB already initialized, skipping migration.');
+            return;
         }
-    } else {
-        await SiteData.create({});
-        console.log('ℹ️ No legacy JSON found. Created empty site data in MongoDB.');
+
+        if (fs.existsSync(DATA_FILE)) {
+            try {
+                const legacyRaw = fs.readFileSync(DATA_FILE, 'utf8').trim();
+                const legacy = legacyRaw ? JSON.parse(legacyRaw) : {};
+
+                await SiteData.create({
+                    tagline: legacy.tagline || "💖 Welcome to Patz Brat 💖",
+                    views: legacy.views || 0,
+                    links: legacy.links || [],
+                    images: legacy.images || []
+                });
+                console.log('✅ Migrated site-data.json to MongoDB!');
+            } catch (err) {
+                console.error('⚠️ Failed to migrate site-data.json:', err);
+                await SiteData.create({});
+            }
+        } else {
+            await SiteData.create({});
+            console.log('ℹ️ No legacy JSON found. Created empty site data in MongoDB.');
+        }
+    } catch (err) {
+        console.error('❌ Migration failed:', err);
+        // Ensure DB has a fallback document
+        const existing = await SiteData.findOne();
+        if (!existing) await SiteData.create({});
     }
 }
 
@@ -68,11 +77,15 @@ async function getSiteData() {
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// ====== CSP Header for Security ======
+// ====== CSP Header for Security (allow fonts & cloudinary) ======
 app.use((req, res, next) => {
     res.setHeader(
         "Content-Security-Policy",
-        "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline';"
+        "default-src 'self'; " +
+        "img-src 'self' data: https:; " +
+        "style-src 'self' 'unsafe-inline' https:; " +
+        "script-src 'self' 'unsafe-inline'; " +
+        "font-src 'self' https: data:;"
     );
     next();
 });
@@ -139,16 +152,26 @@ app.get('/admin/logout', (req, res) => {
 
 // ====== Site Data APIs ======
 app.get('/api/site-data', async (req, res) => {
-    const data = await getSiteData();
-    res.json(data);
+    try {
+        const data = await getSiteData();
+        res.json(data);
+    } catch (err) {
+        console.error('Error loading site-data:', err);
+        res.status(500).json({ error: 'Failed to load site data' });
+    }
 });
 
 app.post('/api/update-site-data', requireLogin, async (req, res) => {
-    let data = await getSiteData();
-    data.tagline = req.body.tagline;
-    data.links = req.body.links;
-    await data.save();
-    res.json({ success: true });
+    try {
+        let data = await getSiteData();
+        data.tagline = req.body.tagline;
+        data.links = req.body.links;
+        await data.save();
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Error saving site-data:', err);
+        res.status(500).json({ success: false, error: 'Save failed' });
+    }
 });
 
 // ====== Upload & Gallery APIs ======
@@ -172,8 +195,13 @@ app.post('/admin/upload', requireLogin, upload.single('image'), async (req, res)
 });
 
 app.get('/api/images', async (req, res) => {
-    const data = await getSiteData();
-    res.json(data.images || []);
+    try {
+        const data = await getSiteData();
+        res.json(data.images || []);
+    } catch (err) {
+        console.error('Error loading images:', err);
+        res.status(500).json({ error: 'Failed to load images' });
+    }
 });
 
 app.delete('/api/delete', requireLogin, async (req, res) => {
@@ -201,13 +229,18 @@ app.delete('/api/delete', requireLogin, async (req, res) => {
 
 // ====== View Counter ======
 app.get('/api/views', async (req, res) => {
-    const countVisit = req.query.count === 'true';
-    const data = await getSiteData();
-    if (countVisit) {
-        data.views += 1;
-        await data.save();
+    try {
+        const countVisit = req.query.count === 'true';
+        const data = await getSiteData();
+        if (countVisit) {
+            data.views += 1;
+            await data.save();
+        }
+        res.json({ views: data.views });
+    } catch (err) {
+        console.error('Error fetching view count:', err);
+        res.status(500).json({ views: 0 });
     }
-    res.json({ views: data.views });
 });
 
 // ====== Static Files ======
