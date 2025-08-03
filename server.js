@@ -1,6 +1,7 @@
 ﻿require('dotenv').config(); // Load .env first
 const express = require('express');
 const session = require('express-session');
+const SQLiteStore = require('connect-sqlite3')(session);
 const bcrypt = require('bcrypt');
 const path = require('path');
 const multer = require('multer');
@@ -28,8 +29,12 @@ if (!fs.existsSync(DATA_FILE)) {
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Persistent Session Setup
+// ====== Persistent Session Setup (SQLite) ======
 app.use(session({
+    store: new SQLiteStore({
+        db: 'sessions.sqlite',   // File name for session storage
+        dir: __dirname           // Store alongside server.js
+    }),
     secret: process.env.SESSION_SECRET || 'fallback-secret',
     resave: false,
     saveUninitialized: false,
@@ -37,8 +42,7 @@ app.use(session({
         maxAge: 1000 * 60 * 60 * 24, // 1 day
         httpOnly: true,
         secure: false,               // true if using HTTPS
-        sameSite: 'lax',             // helps with CSRF protection
-        path: '/'
+        sameSite: 'lax'
     }
 }));
 
@@ -58,7 +62,6 @@ const upload = multer({ storage });
 
 // ====== Auth Setup ======
 const ADMIN_USER = process.env.ADMIN_USER || 'admin';
-// If no env password hash is set, create one from fallback
 const DEFAULT_PASS = process.env.ADMIN_PASS || 'password123';
 const ADMIN_HASH = process.env.ADMIN_HASH || bcrypt.hashSync(DEFAULT_PASS, 10);
 
@@ -142,5 +145,5 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
 
 // ====== Start Server ======
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`✅ Server running: http://localhost:${PORT}`));
