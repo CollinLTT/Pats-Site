@@ -12,9 +12,12 @@ const mongoose = require('mongoose');
 const app = express();
 
 // ====== MongoDB Setup ======
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(process.env.MONGO_URI, {
+    serverSelectionTimeoutMS: 30000, // Wait up to 30s for initial connection
+})
     .then(() => console.log('✅ Connected to MongoDB'))
     .catch(err => console.error('MongoDB connection error:', err));
+
 
 // Schema for Site Data
 const siteDataSchema = new mongoose.Schema({
