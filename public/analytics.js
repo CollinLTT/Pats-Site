@@ -5,22 +5,23 @@ document.addEventListener("click", e => {
     }
 });
 
-// 2. Track unique browser view
 async function updateViewCount() {
+    console.log('updateViewCount running'); // <--- DEBUG
+
     const hasVisited = localStorage.getItem('viewCounted');
     const url = hasVisited ? '/api/views' : '/api/views?count=true';
+    console.log('Fetching from', url); // <--- DEBUG
 
     try {
         const response = await fetch(url);
         const data = await response.json();
+        console.log('Server response:', data); // <--- DEBUG
 
-        // Display the view count
         const viewCountElement = document.getElementById('viewCount');
         if (viewCountElement) {
             viewCountElement.textContent = data.views;
         }
 
-        // Mark as counted
         if (!hasVisited) {
             localStorage.setItem('viewCounted', 'true');
         }
@@ -29,4 +30,3 @@ async function updateViewCount() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', updateViewCount);
