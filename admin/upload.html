@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+            background: linear-gradient(-45deg, #1a0f1f, #2b0f2e, #1f0f2b, #2e0f1c);
+            background-size: 400% 400%;
+            animation: backgroundShift 15s ease infinite;
+            color: #f8c8ff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding-top: 100px;
+        }
+
+        @keyframes backgroundShift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Top bar */
+        .top-bar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(30, 0, 40, 0.7);
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 30px;
+            box-shadow: 0 0 20px rgba(255,20,147,0.4);
+            backdrop-filter: blur(6px);
+        }
+
+            .top-bar a {
+                color: white;
+                font-weight: bold;
+                text-decoration: none;
+                background: linear-gradient(135deg, #ff7de9, #ff4fa6);
+                padding: 8px 18px;
+                border-radius: 30px;
+                transition: 0.3s;
+            }
+
+                .top-bar a:hover {
+                    background: linear-gradient(135deg, #ff4fa6, #ff7de9);
+                }
+
+        /* Move buttons inward for smaller screens */
+        @media (max-width: 600px) {
+            .top-bar {
+                padding: 15px 15px; /* Reduce padding */
+            }
+
+                .top-bar a {
+                    font-size: 0.85rem;
+                    padding: 6px 14px;
+                }
+        }
+
+        /* Panels */
+        .panel {
+            background: rgba(255, 20, 147, 0.1);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 20px;
+            padding: 30px 25px;
+            text-align: center;
+            width: 90%;
+            max-width: 650px;
+            box-shadow: 0 0 25px rgba(255, 20, 147, 0.3);
+            backdrop-filter: blur(6px);
+            animation: fadeIn 0.6s ease;
+            margin-bottom: 30px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .panel h1 {
+            font-size: 1.5rem;
+            color: #ff7de9;
+            text-shadow: 0 0 12px rgba(255, 20, 147, 0.6);
+            margin-bottom: 20px;
+        }
+
+        input[type="text"], input[type="url"] {
+            width: 100%;
+            padding: 10px;
+            margin: 6px 0;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.3);
+            color: #ffc8f8;
+            font-size: 0.95rem;
+        }
+
+        input[type="file"] {
+            display: block;
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 10px;
+            color: #f8c8ff;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+            input[type="file"]::-webkit-file-upload-button {
+                background: linear-gradient(135deg, #ff7de9, #ff4fa6);
+                color: white;
+                border: none;
+                border-radius: 20px;
+                padding: 8px 16px;
+                cursor: pointer;
+                font-weight: bold;
+            }
+
+                input[type="file"]::-webkit-file-upload-button:hover {
+                    background: linear-gradient(135deg, #ff4fa6, #ff7de9);
+                }
+
+        button {
+            display: inline-block;
+            background: linear-gradient(135deg, #ff7de9, #ff4fa6);
+            color: white;
+            padding: 10px 20px;
+            font-weight: bold;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(255, 20, 147, 0.4);
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+            button:hover {
+                background: linear-gradient(135deg, #ff4fa6, #ff7de9);
+                transform: translateY(-2px);
+                box-shadow: 0 0 25px rgba(255, 20, 147, 0.6);
+            }
+
+        /* Custom buttons */
+        .save-links-btn {
+            background: linear-gradient(135deg, #4CAF50, #2E7D32); /* green */
+        }
+
+            .save-links-btn:hover {
+                background: linear-gradient(135deg, #45a049, #1b5e20);
+            }
+
+        .remove-link-btn {
+            background: linear-gradient(135deg, #ff4f7a, #ff1f4d); /* hot pink/red */
+        }
+
+            .remove-link-btn:hover {
+                background: linear-gradient(135deg, #ff1f4d, #ff4f7a);
+            }
+
+        /* Gallery */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            width: 90%;
+            max-width: 800px;
+            margin-bottom: 50px; /* Added bottom padding */
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 0 15px rgba(255, 20, 147, 0.2);
+        }
+
+            .gallery-item img {
+                width: 100%;
+                display: block;
+            }
+
+        .delete-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255, 20, 147, 0.8);
+            border: none;
+            color: white;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+            .delete-btn:hover {
+                background: rgba(255, 50, 170, 1);
+            }
+
+        /* Popup */
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(30, 0, 40, 0.9);
+            color: white;
+            padding: 30px 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(255, 20, 147, 0.7);
+            display: none;
+            animation: fadeIn 0.3s ease;
+            z-index: 1000;
+        }
+
+            .popup.show {
+                display: block;
+            }
+
+        /* Social link group */
+        .link-group {
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            background: rgba(255, 20, 147, 0.05);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <a href="/">← Home</a>
+        <a href="/admin/logout">Logout</a>
+    </div>
+
+    <!-- Tagline Panel -->
+    <div class="panel">
+        <h1>Site Tagline</h1>
+        <input type="text" id="taglineInput" placeholder="Enter site tagline">
+        <button onclick="saveTagline()">Save Tagline</button>
+    </div>
+
+    <!-- Social Links Panel -->
+    <div class="panel" id="linksPanel">
+        <h1>Social Links</h1>
+        <div id="linksContainer"></div>
+        <button onclick="addLink()">+ Add Link</button>
+        <button class="save-links-btn" onclick="saveLinks()">Save Links</button>
+    </div>
+
+    <!-- Upload Panel -->
+    <div class="panel">
+        <h1>Upload Image</h1>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" name="image" accept="image/*" required>
+            <button type="submit">Upload</button>
+        </form>
+    </div>
+
+    <div class="gallery" id="gallery"></div>
+    <div class="popup" id="popup">Message</div>
+
+    <script>
+        const popup = document.getElementById('popup');
+        const gallery = document.getElementById('gallery');
+        const linksContainer = document.getElementById('linksContainer');
+        const taglineInput = document.getElementById('taglineInput');
+        let siteLinks = [];
+
+        async function loadSiteData() {
+            const res = await fetch('/api/site-data');
+            const data = await res.json();
+            taglineInput.value = data.tagline;
+            siteLinks = data.links.map(link => ({
+                name: link.name,
+                url: link.url,
+                icon: link.icon,
+                smallTagline: link.smallTagline || ''
+            }));
+            renderLinks();
+        }
+
+        function renderLinks() {
+            linksContainer.innerHTML = '';
+            siteLinks.forEach((link, i) => {
+                const div = document.createElement('div');
+                div.className = 'link-group';
+                div.innerHTML = `
+                            <div style="display:flex; align-items:center; margin-bottom:8px;">
+                                <label style="width:120px; color:#ffc8f8; font-weight:bold;">Name:</label>
+                                <input type="text" value="${link.name}" oninput="siteLinks[${i}].name=this.value" style="flex:1;">
+                            </div>
+                            <div style="display:flex; align-items:center; margin-bottom:8px;">
+                                <label style="width:120px; color:#ffc8f8; font-weight:bold;">URL:</label>
+                                <input type="url" value="${link.url}" oninput="siteLinks[${i}].url=this.value" style="flex:1;">
+                            </div>
+                            <div style="display:flex; align-items:center; margin-bottom:8px;">
+                                <label style="width:120px; color:#ffc8f8; font-weight:bold;">Icon:</label>
+                                <input type="text" value="${link.icon}" oninput="siteLinks[${i}].icon=this.value" style="flex:1;">
+                            </div>
+                            <div style="display:flex; align-items:center; margin-bottom:8px;">
+                                <label style="width:120px; color:#ffc8f8; font-weight:bold;">Tagline:</label>
+                                <input type="text" value="${link.smallTagline}" oninput="siteLinks[${i}].smallTagline=this.value" style="flex:1;">
+                            </div>
+                            <button class="remove-link-btn" onclick="removeLink(${i})" style="margin-top:5px;">Remove Link</button>
+                        `;
+                linksContainer.appendChild(div);
+            });
+        }
+
+        function addLink() {
+            siteLinks.push({ name: '', url: '', icon: '', smallTagline: '' });
+            renderLinks();
+        }
+
+        function removeLink(index) {
+            siteLinks.splice(index, 1);
+            renderLinks();
+        }
+
+        async function saveLinks() {
+            const res = await fetch('/api/site-data');
+            const data = await res.json();
+            data.links = siteLinks;
+            await fetch('/api/update-site-data', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            showPopup('Links saved!');
+        }
+
+        async function saveTagline() {
+            const res = await fetch('/api/site-data');
+            const data = await res.json();
+            data.tagline = taglineInput.value;
+            await fetch('/api/update-site-data', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            showPopup('Tagline saved!');
+        }
+
+        function showPopup(msg) {
+            popup.textContent = msg;
+            popup.classList.add('show');
+            setTimeout(() => popup.classList.remove('show'), 2000);
+        }
+
+        async function loadImages() {
+            const res = await fetch('/api/images');
+            const images = await res.json();
+            gallery.innerHTML = '';
+            images.forEach(img => {
+                const div = document.createElement('div');
+                div.className = 'gallery-item';
+                div.innerHTML = `
+                          <img src="/uploads/${img}" alt="${img}">
+                          <button class="delete-btn" onclick="deleteImage('${img}')">X</button>
+                        `;
+                gallery.appendChild(div);
+            });
+        }
+
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const res = await fetch('/admin/upload', { method: 'POST', body: formData });
+            if (res.ok) {
+                showPopup('✅ Image uploaded!');
+                e.target.reset();
+                loadImages();
+            } else {
+                showPopup('❌ Upload failed.');
+            }
+        });
+
+        async function deleteImage(filename) {
+            if (!confirm(`Delete ${filename}?`)) return;
+            const res = await fetch('/api/delete/' + filename, { method: 'DELETE' });
+            if (res.ok) {
+                showPopup('🗑️ Image deleted!');
+                loadImages();
+            } else {
+                showPopup('❌ Delete failed.');
+            }
+        }
+
+        loadImages();
+        loadSiteData();
+    </script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patz Brat</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome for Social Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        /* Social Buttons with Tagline */
+        .social-link-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 12px; /* Less rounded */
+            font-weight: bold;
+            background: linear-gradient(135deg, #ff7de9, #ff4fa6);
+            color: white;
+            box-shadow: 0 0 15px rgba(255, 20, 147, 0.4);
+            transition: all 0.3s ease;
+            margin: 0 8px;
+            min-width: 130px;
+        }
+
+            .social-link-btn:hover {
+                background: linear-gradient(135deg, #ff4fa6, #ff7de9);
+                box-shadow: 0 0 25px rgba(255, 20, 147, 0.6);
+                transform: translateY(-2px);
+            }
+
+            .social-link-btn .main-line {
+                font-size: 1rem;
+                text-align: center;
+            }
+
+            .social-link-btn .tagline-line {
+                font-size: 0.75rem;
+                color: #ffc8f8;
+                margin-top: 2px;
+                opacity: 0.85;
+                text-align: center;
+            }
+    </style>
+</head>
+<body>
+
+    <!-- Hamburger Menu for Admin -->
+    <div class="admin-menu">
+        <div class="hamburger" onclick="document.body.classList.toggle('admin-open')">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+        <div class="admin-panel">
+            <!-- Admin button -->
+            <a href="/admin/login.html" class="admin-btn" id="adminBtn">Admin Sign In</a>
+            <!-- Logout button (hidden by default) -->
+            <a href="/admin/logout" class="admin-btn" id="logoutBtn" style="display:none; margin-top:5px;">Log Out</a>
+        </div>
+    </div>
+
+    <header class="hero">
+        <div class="logo-wrapper">
+            <h1 class="logo">Patz Brat</h1>
+        </div>
+        <p id="tagline"></p>
+        <div class="social-links" id="socialLinks"></div>
+    </header>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const taglineEl = document.getElementById('tagline');
+            const linksContainer = document.getElementById('socialLinks');
+
+            try {
+                const res = await fetch('/api/site-data');
+                const data = await res.json();
+
+                taglineEl.textContent = data.tagline;
+                linksContainer.innerHTML = '';
+
+                data.links.forEach(link => {
+                    const a = document.createElement('a');
+                    a.href = link.url;
+                    a.target = '_blank';
+                    a.classList.add('social-link-btn');
+
+                    // Icon + Name
+                    const topLine = document.createElement('div');
+                    topLine.className = 'main-line';
+                    topLine.innerHTML = `<i class="${link.icon}" style="margin-right:6px;"></i> ${link.name}`;
+
+                    // Optional Small Tagline
+                    const bottomLine = document.createElement('div');
+                    bottomLine.className = 'tagline-line';
+                    bottomLine.textContent = link.smallTagline || '';
+
+                    a.appendChild(topLine);
+                    if (link.smallTagline) a.appendChild(bottomLine);
+
+                    linksContainer.appendChild(a);
+                });
+            } catch (err) {
+                console.error('Failed to load site data', err);
+            }
+        });
+    </script>
+
+
+    <!-- Image Slider -->
+    <div class="slider-container">
+        <div class="slider" id="slider"></div>
+
+        <!-- Slider Navigation -->
+        <div class="slider-nav">
+            <span class="prev">&#10094;</span>
+            <span class="next">&#10095;</span>
+        </div>
+    </div>
+
+
+    <script src="gallery.js"></script>
+    <script src="analytics.js"></script>
+
+    <!-- Admin Button Dynamic Update -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const adminBtn = document.querySelector('.admin-btn');
+
+            fetch('/api/check-auth')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.loggedIn) {
+                        adminBtn.textContent = 'Admin Dashboard';
+                        adminBtn.href = '/admin/upload.html';
+
+                        // Add logout button dynamically
+                        const logoutBtn = document.createElement('a');
+                        logoutBtn.textContent = 'Logout';
+                        logoutBtn.href = '/admin/logout';
+                        logoutBtn.classList.add('admin-btn');
+                        logoutBtn.style.marginTop = '5px';
+                        adminBtn.parentNode.appendChild(logoutBtn);
+                    }
+                })
+                .catch(err => console.error(err));
+        });
+    </script>
+
+</body>
+</html>

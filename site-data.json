@@ -1,0 +1,35 @@
+{
+  "tagline": "💖 Welcome to the Patz Brat website! 💖",
+  "links": [
+    {
+      "name": "OnlyFans",
+      "url": "https://onlyfans.com/",
+      "icon": "fa fa-unlock-alt",
+      "smallTagline": "✨new sale ✨"
+    },
+    {
+      "name": "Instagram",
+      "url": "https://instagram.com/",
+      "icon": "fab fa-instagram",
+      "smallTagline": "✨check out my pics ✨"
+    },
+    {
+      "name": "Twitter / X",
+      "url": "https://twitter.com/",
+      "icon": "fab fa-x-twitter",
+      "smallTagline": "✨best posts r here x ✨"
+    },
+    {
+      "name": "TikTok",
+      "url": "https://tiktok.com/",
+      "icon": "fab fa-tiktok",
+      "smallTagline": ""
+    },
+    {
+      "name": "CashApp",
+      "url": "https://google.com/",
+      "icon": "fa fa-usd",
+      "smallTagline": "OMG SEND ME MONEY!!!!"
+    }
+  ]
+}

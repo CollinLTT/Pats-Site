@@ -1,0 +1,24 @@
+# Node.js dependencies
+node_modules/
+
+# Environment variables
+.env
+
+# Local uploads (images) - do not store user content on GitHub
+uploads/
+
+# Ignore Visual Studio temporary files
+.vs/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Optional: SQLite database if you don't want to commit it
+db.sqlite

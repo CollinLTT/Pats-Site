@@ -1,0 +1,346 @@
+﻿/* =============================
+   Global Dark & Bratty Theme
+============================= */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: 'Poppins', 'Segoe UI', sans-serif;
+    background: linear-gradient(-45deg, #1a0f1f, #2b0f2e, #1f0f2b, #2e0f1c);
+    background-size: 400% 400%;
+    animation: backgroundShift 15s ease infinite;
+    color: #f8c8ff;
+    overflow-x: hidden;
+}
+
+/* Animated Background Shift */
+@keyframes backgroundShift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* =============================
+   Hero Section
+============================= */
+.hero {
+    text-align: center;
+    padding: 60px 20px;
+    background: rgba(255, 20, 147, 0.1);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(6px);
+}
+
+    .hero h1 {
+        font-size: 2.8rem;
+        color: #ff7de9;
+        text-shadow: 0 0 10px rgba(255, 20, 147, 0.6);
+        margin-bottom: 12px;
+    }
+
+    .hero p {
+        font-size: 1.2rem;
+        color: #ffc8f8;
+        opacity: 0.9;
+    }
+
+/* =============================
+   Slider - Single Image Visible
+============================= */
+.slider-container {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    max-width: 90vw;
+    margin: 20px auto;
+}
+
+.slider {
+    display: flex;
+    transition: transform 0.6s ease-in-out;
+}
+
+.slide {
+    flex: 0 0 100%; /* Each slide takes full container width */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+    .slide img {
+        max-width: 100%;
+        max-height: 80vh;
+        object-fit: contain;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+
+/* Arrows */
+.slider-nav span {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2.5rem;
+    color: white;
+    cursor: pointer;
+    user-select: none;
+    padding: 0 15px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    transition: background 0.3s;
+}
+
+.slider-nav .prev {
+    left: 10px;
+}
+
+.slider-nav .next {
+    right: 10px;
+}
+
+.slider-nav span:hover {
+    background: rgba(0,0,0,0.5);
+}
+
+
+
+/* =============================
+   Admin Hidden Menu
+============================= */
+.admin-menu {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2000;
+}
+
+.hamburger {
+    width: 35px;
+    height: 28px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    padding: 4px;
+    z-index: 2100;
+}
+
+    .hamburger span {
+        display: block;
+        height: 4px;
+        background: #ff7de9;
+        border-radius: 2px;
+        transition: 0.3s;
+    }
+
+.admin-panel {
+    position: absolute;
+    top: 45px;
+    right: 0;
+    background: rgba(30, 0, 40, 0.9);
+    border: 1px solid rgba(255, 20, 147, 0.3);
+    border-radius: 10px;
+    padding: 12px 20px;
+    box-shadow: 0 0 25px rgba(255, 20, 147, 0.4);
+    transform: translateY(-20px);
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.3s ease;
+}
+
+body.admin-open .admin-panel {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Admin Button */
+.admin-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #ff7de9, #ff4fa6);
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 8px 16px;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    border-radius: 8px;
+    box-shadow: 0 0 12px rgba(255, 20, 147, 0.3);
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+    .admin-btn:hover,
+    .admin-btn:focus {
+        background: linear-gradient(135deg, #ff4fa6, #ff7de9);
+        box-shadow: 0 0 18px rgba(255, 20, 147, 0.5);
+        transform: translateY(-2px);
+    }
+
+/* Animate Hamburger to X */
+body.admin-open .hamburger span:nth-child(1) {
+    transform: rotate(45deg) translate(6px, 6px);
+}
+
+body.admin-open .hamburger span:nth-child(2) {
+    opacity: 0;
+}
+
+body.admin-open .hamburger span:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
+}
+
+/* =============================
+   Neon Logo Wrapper
+============================= */
+.logo-wrapper {
+    position: relative;
+    display: inline-block;
+    padding: 30px 80px;
+    margin: 40px auto;
+    border-radius: 50px;
+    border: 4px solid rgba(255, 20, 147, 0.5);
+    box-shadow: 0 0 25px rgba(255, 20, 147, 0.6), 0 0 60px rgba(255, 20, 147, 0.3);
+    overflow: hidden;
+    animation: logoGlow 4s ease-in-out infinite alternate;
+}
+
+.logo {
+    font-size: 3.2rem;
+    font-weight: 900;
+    color: #ffb8f2;
+    text-shadow: 0 0 15px rgba(255, 20, 147, 0.7), 0 0 30px rgba(255, 20, 147, 0.4);
+    z-index: 1;
+    position: relative;
+    top: -8px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+@keyframes logoGlow {
+    0% {
+        box-shadow: 0 0 25px rgba(255, 20, 147, 0.6), 0 0 60px rgba(255, 20, 147, 0.3);
+    }
+
+    100% {
+        box-shadow: 0 0 40px rgba(255, 110, 200, 0.9), 0 0 80px rgba(255, 40, 150, 0.6);
+    }
+}
+
+/* =============================
+   Social Link Section
+============================= */
+.social-links {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 18px;
+}
+
+    .social-links a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 20px;
+        border-radius: 20px;
+        font-weight: bold;
+        color: #ffc8f8;
+        text-decoration: none;
+        background: rgba(255, 20, 147, 0.15);
+        border: 1px solid rgba(255,255,255,0.1);
+        transition: all 0.3s ease;
+        font-size: 1rem;
+        box-shadow: 0 0 12px rgba(255, 20, 147, 0.15);
+    }
+
+        .social-links a:hover,
+        .social-links a:focus {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 0 20px rgba(255, 20, 147, 0.4);
+        }
+
+    .social-links .onlyfans i {
+        color: #00aff0;
+    }
+
+    .social-links .instagram i {
+        color: #e4405f;
+    }
+
+    .social-links .twitter i {
+        color: #1da1f2;
+    }
+
+    .social-links .tiktok i {
+        color: #ff0050;
+    }
+
+/* =============================
+   Responsive Adjustments
+============================= */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .slider img {
+        max-height: 60vh;
+    }
+
+    .logo-wrapper {
+        padding: 20px 40px;
+        border-radius: 40px;
+    }
+
+    .logo {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .social-links {
+        flex-direction: column;
+        align-items: center;
+    }
+
+        .social-links a {
+            width: 80%;
+            justify-content: center;
+        }
+}
+
+/* =============================
+   Cute Themed Tagline
+============================= */
+#tagline {
+    font-size: 1.3rem;
+    color: #ffb8f2;
+    margin-top: 10px;
+    margin-bottom: 25px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-shadow: 0 0 10px rgba(255, 20, 147, 0.6), 0 0 20px rgba(255, 110, 200, 0.4);
+    animation: taglineGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes taglineGlow {
+    0% {
+        text-shadow: 0 0 10px rgba(255, 20, 147, 0.5), 0 0 20px rgba(255, 110, 200, 0.3);
+    }
+
+    100% {
+        text-shadow: 0 0 15px rgba(255, 110, 200, 0.8), 0 0 30px rgba(255, 40, 150, 0.6);
+    }
+}
