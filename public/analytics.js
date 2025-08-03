@@ -1,4 +1,4 @@
-// 1. Track image clicks (original feature)
+﻿// 1. Track image clicks (original feature)
 document.addEventListener("click", e => {
     if (e.target.tagName === "IMG" && e.target.dataset.id) {
         fetch(`/api/click/${e.target.dataset.id}`, { method: "POST" });
@@ -30,3 +30,5 @@ async function updateViewCount() {
     }
 }
 
+// Actually call the function after DOM is ready
+document.addEventListener('DOMContentLoaded', updateViewCount);
