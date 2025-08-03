@@ -142,20 +142,40 @@ app.get('/api/images', (req, res) => {
     res.json(data.images || []);
 });
 
-app.delete('/api/delete/:urlIndex', requireLogin, (req, res) => {
-    let data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-    const index = parseInt(req.params.urlIndex);
+app.delete('/api/delete', requireLogin, async (req, res) => {
+    try {
+        const { url } = req.body; // URL sent in JSON
+        if (!url) return res.status(400).json({ error: 'Image URL required' });
 
-    if (isNaN(index) || index < 0 || index >= data.images.length) {
-        return res.status(400).json({ error: 'Invalid index' });
+        let data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+
+        // Remove from site-data.json
+        const index = data.images.indexOf(url);
+        if (index === -1) return res.status(404).json({ error: 'Image not found' });
+
+        data.images.splice(index, 1);
+        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+
+        // Extract Cloudinary public_id from URL
+        // Example: https://res.cloudinary.com/<cloud>/image/upload/v1234/patz-brat-gallery/file.jpg
+        const publicId = url
+            .split('/')
+            .slice(-2) // ["patz-brat-gallery","file.jpg"]
+            .join('/')
+            .replace(/\.[^/.]+$/, ""); // remove file extension
+
+        console.log('Deleting Cloudinary file:', publicId);
+
+        // Delete from Cloudinary
+        await cloudinary.uploader.destroy(publicId);
+
+        res.json({ success: true, removedUrl: url });
+    } catch (error) {
+        console.error('Delete error:', error);
+        res.status(500).json({ error: 'Failed to delete image' });
     }
-
-    const [removedUrl] = data.images.splice(index, 1);
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-
-    console.log('Image removed from gallery:', removedUrl);
-    res.json({ success: true, removedUrl });
 });
+
 
 // --- Public route for website views ---
 app.get('/api/views', (req, res) => {
