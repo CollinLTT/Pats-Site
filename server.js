@@ -139,6 +139,20 @@ app.delete('/api/delete/:filename', requireLogin, (req, res) => {
     });
 });
 
+// ===== Persistent View Count =====
+app.get('/api/views', (req, res) => {
+    // Load data
+    const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
+
+    // Increment and save
+    data.views = (data.views || 0) + 1;
+    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+
+    // Return the count
+    res.json({ views: data.views });
+});
+
+
 // ====== Static Files ======
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
