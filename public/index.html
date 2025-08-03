@@ -71,13 +71,14 @@
             <h1 class="logo">Patz Brat</h1>
         </div>
         <p id="tagline"></p>
+
+        <!-- View Counter -->
+        <p id="viewCounter" class="view-counter">
+            Website Views: <span id="viewCount">0</span>
+        </p>
+
         <div class="social-links" id="socialLinks"></div>
-
-        <p>Website Views: <span id="viewCount">0</span></p>
-
     </header>
-
-    <script src="/analytics.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
@@ -118,7 +119,6 @@
         });
     </script>
 
-
     <!-- Image Slider -->
     <div class="slider-container">
         <div class="slider" id="slider"></div>
@@ -133,6 +133,7 @@
 
     <script src="gallery.js"></script>
     <script src="analytics.js"></script>
+
 
     <!-- Admin Button Dynamic Update -->
     <script>
