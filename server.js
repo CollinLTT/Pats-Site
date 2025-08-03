@@ -139,19 +139,28 @@ app.delete('/api/delete/:filename', requireLogin, (req, res) => {
     });
 });
 
-// ===== Persistent View Count =====
+// --- Public route for views (no auth) ---
 app.get('/api/views', (req, res) => {
-    const countVisit = req.query.count === 'true'; // ?count=true will increment
+    try {
+        const countVisit = req.query.count === 'true';
+        const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
 
-    const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
+        if (data.views === undefined) data.views = 0;
 
-    if (countVisit) {
-        data.views = (data.views || 0) + 1;
-        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+        if (countVisit) {
+            data.views += 1;
+            fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+        }
+
+        res.json({ views: data.views });
+    } catch (err) {
+        console.error('Error handling view count:', err);
+        res.status(500).json({ error: 'Server error' });
     }
-
-    res.json({ views: data.views || 0 });
 });
+
+// --- Then your auth-protected routes ---
+app.use('/api', requireAuthMiddleware);
 
 
 
