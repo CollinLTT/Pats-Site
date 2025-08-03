@@ -38,6 +38,15 @@ async function getSiteData() {
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+// ====== Content Security Policy ======
+app.use((req, res, next) => {
+    res.setHeader(
+        "Content-Security-Policy",
+        "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline';"
+    );
+    next();
+});
+
 // ====== Persistent Session Setup (SQLite) ======
 app.use(session({
     store: new SQLiteStore({ db: 'sessions.sqlite', dir: __dirname }),
@@ -97,6 +106,11 @@ app.get('/', (req, res) => {
 
 app.get('/admin/upload.html', requireLogin, (req, res) => {
     res.sendFile(path.join(__dirname, 'admin', 'upload.html'));
+});
+
+// ✅ NEW: GET /admin/login redirects to login.html
+app.get('/admin/login', (req, res) => {
+    res.redirect('/admin/login.html');
 });
 
 // ====== Login & Logout ======
