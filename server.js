@@ -5,6 +5,7 @@ const SQLiteStore = require('connect-sqlite3')(session);
 const bcrypt = require('bcrypt');
 const path = require('path');
 const multer = require('multer');
+const fs = require('fs');
 const cloudinary = require('cloudinary').v2;
 const mongoose = require('mongoose');
 
@@ -23,14 +24,43 @@ const siteDataSchema = new mongoose.Schema({
     images: { type: [String], default: [] }
 });
 
-// Only one document for your site
 const SiteData = mongoose.model('SiteData', siteDataSchema);
 
+// Legacy JSON file path
+const DATA_FILE = path.join(__dirname, 'site-data.json');
+
+// ====== Auto-Migration on First Run ======
+async function migrateLegacyData() {
+    const existing = await SiteData.findOne();
+    if (existing) {
+        console.log('ℹ️ MongoDB already initialized, skipping migration.');
+        return;
+    }
+
+    if (fs.existsSync(DATA_FILE)) {
+        try {
+            const legacy = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+            await SiteData.create({
+                tagline: legacy.tagline || "💖 Welcome to Patz Brat 💖",
+                views: legacy.views || 0,
+                links: legacy.links || [],
+                images: legacy.images || []
+            });
+            console.log('✅ Migrated site-data.json to MongoDB!');
+        } catch (err) {
+            console.error('⚠️ Failed to migrate site-data.json:', err);
+            await SiteData.create({}); // create default to avoid empty DB
+        }
+    } else {
+        await SiteData.create({});
+        console.log('ℹ️ No legacy JSON found. Created empty site data in MongoDB.');
+    }
+}
+
+// ====== Utility ======
 async function getSiteData() {
     let data = await SiteData.findOne();
-    if (!data) {
-        data = await SiteData.create({});
-    }
+    if (!data) data = await SiteData.create({});
     return data;
 }
 
@@ -38,7 +68,7 @@ async function getSiteData() {
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// ====== Content Security Policy ======
+// ====== CSP Header for Security ======
 app.use((req, res, next) => {
     res.setHeader(
         "Content-Security-Policy",
@@ -47,7 +77,7 @@ app.use((req, res, next) => {
     next();
 });
 
-// ====== Persistent Session Setup (SQLite) ======
+// ====== Session Setup ======
 app.use(session({
     store: new SQLiteStore({ db: 'sessions.sqlite', dir: __dirname }),
     secret: process.env.SESSION_SECRET || 'fallback-secret',
@@ -68,8 +98,8 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// ====== Multer Setup for Temporary Storage ======
-const upload = multer({ dest: '/tmp' }); // Files stored in ephemeral /tmp
+// ====== Multer Setup (Ephemeral Storage) ======
+const upload = multer({ dest: '/tmp' });
 
 // ====== Auth Setup ======
 const ADMIN_USER = process.env.ADMIN_USER || 'admin';
@@ -81,39 +111,15 @@ function requireLogin(req, res, next) {
     next();
 }
 
+// ====== Auth Routes ======
 app.get('/api/check-auth', (req, res) => {
     res.status(req.session.loggedIn ? 200 : 401).json({ loggedIn: !!req.session.loggedIn });
 });
 
-// ====== Site Data APIs ======
-app.get('/api/site-data', async (req, res) => {
-    const data = await getSiteData();
-    res.json(data);
-});
-
-app.post('/api/update-site-data', requireLogin, async (req, res) => {
-    let data = await getSiteData();
-    data.tagline = req.body.tagline;
-    data.links = req.body.links;
-    await data.save();
-    res.json({ success: true });
-});
-
-// ====== Serve Pages ======
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-app.get('/admin/upload.html', requireLogin, (req, res) => {
-    res.sendFile(path.join(__dirname, 'admin', 'upload.html'));
-});
-
-// ✅ NEW: GET /admin/login redirects to login.html
 app.get('/admin/login', (req, res) => {
     res.redirect('/admin/login.html');
 });
 
-// ====== Login & Logout ======
 app.post('/admin/login', async (req, res) => {
     const { username, password } = req.body;
     if (username === ADMIN_USER && await bcrypt.compare(password, ADMIN_HASH)) {
@@ -131,7 +137,21 @@ app.get('/admin/logout', (req, res) => {
     });
 });
 
-// ====== Upload & Gallery APIs (Cloudinary + MongoDB) ======
+// ====== Site Data APIs ======
+app.get('/api/site-data', async (req, res) => {
+    const data = await getSiteData();
+    res.json(data);
+});
+
+app.post('/api/update-site-data', requireLogin, async (req, res) => {
+    let data = await getSiteData();
+    data.tagline = req.body.tagline;
+    data.links = req.body.links;
+    await data.save();
+    res.json({ success: true });
+});
+
+// ====== Upload & Gallery APIs ======
 app.post('/admin/upload', requireLogin, upload.single('image'), async (req, res) => {
     try {
         const result = await cloudinary.uploader.upload(req.file.path, {
@@ -196,4 +216,7 @@ app.use('/admin', express.static(path.join(__dirname, 'admin')));
 
 // ====== Start Server ======
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`✅ Server running: http://localhost:${PORT}`));
+app.listen(PORT, async () => {
+    console.log(`✅ Server running: http://localhost:${PORT}`);
+    await migrateLegacyData(); // Auto-import legacy site-data.json
+});
