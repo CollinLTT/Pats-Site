@@ -141,16 +141,18 @@ app.delete('/api/delete/:filename', requireLogin, (req, res) => {
 
 // ===== Persistent View Count =====
 app.get('/api/views', (req, res) => {
-    // Load data
+    const countVisit = req.query.count === 'true'; // ?count=true will increment
+
     const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
 
-    // Increment and save
-    data.views = (data.views || 0) + 1;
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+    if (countVisit) {
+        data.views = (data.views || 0) + 1;
+        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+    }
 
-    // Return the count
-    res.json({ views: data.views });
+    res.json({ views: data.views || 0 });
 });
+
 
 
 // ====== Static Files ======
