@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+﻿document.addEventListener('DOMContentLoaded', () => {
     const slider = document.getElementById('slider');
     const prevBtn = document.querySelector('.prev');
     const nextBtn = document.querySelector('.next');
@@ -18,19 +18,19 @@ document.addEventListener('DOMContentLoaded', () => {
             images = files;
 
             // Create slide elements
-            files.forEach(file => {
+            files.forEach(url => {
                 const slide = document.createElement('div');
                 slide.classList.add('slide');
 
                 const img = document.createElement('img');
-                img.src = `/uploads/${file}`;
-                img.alt = file;
+                img.src = url; // Use Cloudinary URL directly
+                img.alt = 'Gallery image';
 
                 slide.appendChild(img);
                 slider.appendChild(slide);
             });
 
-            // Start sliding once images are loaded
+            // Wait for all images to load before starting auto-slide
             const allImages = slider.querySelectorAll('img');
             let loadedCount = 0;
             allImages.forEach(img => {
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
             });
         })
-        .catch(err => console.error(err));
+        .catch(err => console.error('Error loading images:', err));
 
     function showSlide(index) {
         if (!images.length) return;

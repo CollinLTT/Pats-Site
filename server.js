@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 const path = require('path');
 const multer = require('multer');
 const fs = require('fs');
+const cloudinary = require('cloudinary').v2; // ✅ Added
 
 const app = express();
 
@@ -16,12 +17,14 @@ const DATA_FILE = path.join(__dirname, 'site-data.json');
 if (!fs.existsSync(DATA_FILE)) {
     fs.writeFileSync(DATA_FILE, JSON.stringify({
         tagline: "Welcome to Patz Brat!",
+        views: 0,
         links: [
             { name: "OnlyFans", url: "https://onlyfans.com/", icon: "fa-brands fa-onlyfans", smallTagline: "Exclusive content" },
             { name: "Instagram", url: "https://instagram.com/", icon: "fab fa-instagram", smallTagline: "See my daily posts" },
             { name: "Twitter / X", url: "https://twitter.com/", icon: "fab fa-x-twitter", smallTagline: "Follow my updates" },
             { name: "TikTok", url: "https://tiktok.com/", icon: "fab fa-tiktok", smallTagline: "Fun clips here" }
-        ]
+        ],
+        images: []
     }, null, 2));
 }
 
@@ -32,8 +35,8 @@ app.use(express.json());
 // ====== Persistent Session Setup (SQLite) ======
 app.use(session({
     store: new SQLiteStore({
-        db: 'sessions.sqlite',   // File name for session storage
-        dir: __dirname           // Store alongside server.js
+        db: 'sessions.sqlite',
+        dir: __dirname
     }),
     secret: process.env.SESSION_SECRET || 'fallback-secret',
     resave: false,
@@ -46,19 +49,15 @@ app.use(session({
     }
 }));
 
-// ====== Ensure Uploads Folder ======
-if (!fs.existsSync('uploads')) fs.mkdirSync('uploads');
-
-// ====== Multer Setup for Image Uploads ======
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/');
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname);
-    }
+// ====== Cloudinary Config ======
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
 });
-const upload = multer({ storage });
+
+// ====== Multer Setup for Temporary Storage ======
+const upload = multer({ dest: '/tmp' }); // ✅ Files stored in ephemeral /tmp
 
 // ====== Auth Setup ======
 const ADMIN_USER = process.env.ADMIN_USER || 'admin';
@@ -116,27 +115,46 @@ app.get('/admin/logout', (req, res) => {
     });
 });
 
-// ====== Upload & Gallery APIs ======
-app.post('/admin/upload', requireLogin, upload.single('image'), (req, res) => {
-    console.log('Image uploaded:', req.file.filename);
-    res.status(200).send('OK');
+// ====== Upload & Gallery APIs (Cloudinary) ======
+app.post('/admin/upload', requireLogin, upload.single('image'), async (req, res) => {
+    try {
+        const result = await cloudinary.uploader.upload(req.file.path, {
+            folder: 'patz-brat-gallery' // Optional Cloudinary folder
+        });
+
+        console.log('Image uploaded to Cloudinary:', result.secure_url);
+
+        // Update site-data.json with new image URL
+        let data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+        if (!data.images) data.images = [];
+        data.images.push(result.secure_url);
+        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+
+        res.json({ success: true, url: result.secure_url });
+    } catch (error) {
+        console.error('Cloudinary upload error:', error);
+        res.status(500).json({ success: false, error: 'Upload failed' });
+    }
 });
 
 app.get('/api/images', (req, res) => {
-    fs.readdir('uploads', (err, files) => {
-        if (err) return res.status(500).json({ error: 'Error reading uploads' });
-        const images = files.filter(file => /\.(jpg|jpeg|png|gif)$/i.test(file));
-        res.json(images);
-    });
+    const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+    res.json(data.images || []);
 });
 
-app.delete('/api/delete/:filename', requireLogin, (req, res) => {
-    const filePath = path.join(__dirname, 'uploads', req.params.filename);
-    fs.unlink(filePath, err => {
-        if (err) return res.status(500).send('Failed to delete');
-        console.log('Image deleted:', req.params.filename);
-        res.send('Deleted');
-    });
+app.delete('/api/delete/:urlIndex', requireLogin, (req, res) => {
+    let data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+    const index = parseInt(req.params.urlIndex);
+
+    if (isNaN(index) || index < 0 || index >= data.images.length) {
+        return res.status(400).json({ error: 'Invalid index' });
+    }
+
+    const [removedUrl] = data.images.splice(index, 1);
+    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+
+    console.log('Image removed from gallery:', removedUrl);
+    res.json({ success: true, removedUrl });
 });
 
 // --- Public route for website views ---
@@ -159,12 +177,8 @@ app.get('/api/views', (req, res) => {
     }
 });
 
-
-
-
 // ====== Static Files ======
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
 
 // ====== Start Server ======
