@@ -410,22 +410,11 @@ body.admin-open .hamburger span:nth-child(3) {
     pointer-events: none;
     transition: transform 0.8s ease, opacity 1s ease;
     animation: floatWiggle 5s ease-in-out infinite;
-    transform: rotate(-6deg);
+    transform: rotate(var(--angle, 6deg));
 }
-
-    .floating-img:nth-child(2) {
-        transform: rotate(6deg);
-        animation-delay: 1s;
-    }
-
-    .floating-img:nth-child(3) {
-        transform: rotate(-3deg);
-        animation-delay: 2s;
-    }
-
-    /* Slide animation */
     .floating-img.slide-left {
-        transform: translateX(-100%);
+        margin-left: -220px; /* adjust based on image size + gap */
+        transition: margin-left 1s ease;
     }
 
 /* Wiggle animation */
