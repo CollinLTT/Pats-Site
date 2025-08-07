@@ -294,14 +294,14 @@ body.admin-open .hamburger span:nth-child(3) {
 ============================= */
 .view-counter {
     position: fixed;
-    top: 20px;
+    top: 0px;
     left: 20px;
     z-index: 2000;
     padding: 8px 16px;
     font-size: 1rem;
     font-weight: bold;
     color: #fff0fb;
-    background: linear-gradient(135deg, #ff7de9, #ff4fa6);
+    background: rgba(255, 20, 147, 0.1);
     border-radius: 20px;
     box-shadow: 0 0 15px rgba(255, 20, 147, 0.4), 0 0 30px rgba(255, 110, 200, 0.3);
     text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
