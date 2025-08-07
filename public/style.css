@@ -308,7 +308,7 @@ body.admin-open .hamburger span:nth-child(3) {
 ============================= */
 @media (max-width: 768px) {
     .hero h1 {
-        font-size: 2rem;
+        font-size: 3rem;
     }
 
     .slider img {
