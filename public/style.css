@@ -381,6 +381,73 @@ body.admin-open .hamburger span:nth-child(3) {
 }
 
 /* =============================
+   Floating Image Gallery
+============================= */
+.floating-gallery {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: end;
+    padding: 60px 0 100px;
+    gap: 30px;
+    flex-wrap: wrap;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.floating-img {
+    max-height: 220px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(255, 110, 200, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    transform: rotate(-6deg);
+    opacity: 1;
+    transition: all 1s ease;
+    pointer-events: none;
+    animation: floatWiggle 5s ease-in-out infinite;
+}
+
+    .floating-img:nth-child(2) {
+        transform: rotate(6deg);
+        animation-delay: 1s;
+    }
+
+    .floating-img:nth-child(3) {
+        transform: rotate(-3deg);
+        animation-delay: 2s;
+    }
+
+@keyframes floatWiggle {
+    0%, 100% {
+        transform: translateY(0) rotate(var(--angle, 6deg));
+    }
+
+    50% {
+        transform: translateY(-6px) rotate(calc(var(--angle, 6deg) + 2deg));
+    }
+}
+
+.fade-out {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    transition: all 1s ease;
+}
+
+.fade-in {
+    opacity: 0;
+    transform: translateY(-20px) scale(1.05);
+    animation: fadeInImage 1s forwards;
+}
+
+@keyframes fadeInImage {
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+/* =============================
    Cute Themed Footer
 ============================= */
 .site-footer {
