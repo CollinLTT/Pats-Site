@@ -218,6 +218,7 @@ body.admin-open .hamburger span:nth-child(3) {
 
 .logo {
     font-size: 3.2rem;
+    font-family: "Pirata One", system-ui;
     font-weight: 900;
     color: #ffb8f2;
     text-shadow: 0 0 15px rgba(255, 20, 147, 0.7), 0 0 30px rgba(255, 20, 147, 0.4);
