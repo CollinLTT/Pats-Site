@@ -277,6 +277,9 @@
             <input type="color" id="colorGallery">
         </label><br><br>
         <button onclick="saveColors()">Save Colors</button>
+        <button id="resetColorsBtn" style="margin-top: 12px;">Reset to Default Colors</button>
+        <p id="resetStatus" style="font-size: 0.9rem; margin-top: 6px;"></p>
+
     </div>
 
 
@@ -339,24 +342,24 @@
                 const div = document.createElement('div');
                 div.className = 'link-group';
                 div.innerHTML = `
-                  <div style="display:flex; align-items:center; margin-bottom:8px;">
-                    <label style="width:120px; color:#ffc8f8; font-weight:bold;">Name:</label>
-                    <input type="text" value="${link.name}" oninput="siteLinks[${i}].name=this.value" style="flex:1;">
-                  </div>
-                  <div style="display:flex; align-items:center; margin-bottom:8px;">
-                    <label style="width:120px; color:#ffc8f8; font-weight:bold;">URL:</label>
-                    <input type="url" value="${link.url}" oninput="siteLinks[${i}].url=this.value" style="flex:1;">
-                  </div>
-                  <div style="display:flex; align-items:center; margin-bottom:8px;">
-                    <label style="width:120px; color:#ffc8f8; font-weight:bold;">Icon:</label>
-                    <input type="text" value="${link.icon}" oninput="siteLinks[${i}].icon=this.value" style="flex:1;">
-                  </div>
-                  <div style="display:flex; align-items:center; margin-bottom:8px;">
-                    <label style="width:120px; color:#ffc8f8; font-weight:bold;">Tagline:</label>
-                    <input type="text" value="${link.smallTagline}" oninput="siteLinks[${i}].smallTagline=this.value" style="flex:1;">
-                  </div>
-                  <button class="remove-link-btn" onclick="removeLink(${i})" style="margin-top:5px;">Remove Link</button>
-                `;
+                      <div style="display:flex; align-items:center; margin-bottom:8px;">
+                        <label style="width:120px; color:#ffc8f8; font-weight:bold;">Name:</label>
+                        <input type="text" value="${link.name}" oninput="siteLinks[${i}].name=this.value" style="flex:1;">
+                      </div>
+                      <div style="display:flex; align-items:center; margin-bottom:8px;">
+                        <label style="width:120px; color:#ffc8f8; font-weight:bold;">URL:</label>
+                        <input type="url" value="${link.url}" oninput="siteLinks[${i}].url=this.value" style="flex:1;">
+                      </div>
+                      <div style="display:flex; align-items:center; margin-bottom:8px;">
+                        <label style="width:120px; color:#ffc8f8; font-weight:bold;">Icon:</label>
+                        <input type="text" value="${link.icon}" oninput="siteLinks[${i}].icon=this.value" style="flex:1;">
+                      </div>
+                      <div style="display:flex; align-items:center; margin-bottom:8px;">
+                        <label style="width:120px; color:#ffc8f8; font-weight:bold;">Tagline:</label>
+                        <input type="text" value="${link.smallTagline}" oninput="siteLinks[${i}].smallTagline=this.value" style="flex:1;">
+                      </div>
+                      <button class="remove-link-btn" onclick="removeLink(${i})" style="margin-top:5px;">Remove Link</button>
+                    `;
                 linksContainer.appendChild(div);
             });
         }
@@ -469,9 +472,9 @@
                 const div = document.createElement('div');
                 div.className = 'gallery-item';
                 div.innerHTML = `
-                  <img src="${url}" alt="Uploaded image">
-                  <button class="delete-btn" onclick="deleteImage('${url}')">X</button>
-                `;
+                      <img src="${url}" alt="Uploaded image">
+                      <button class="delete-btn" onclick="deleteImage('${url}')">X</button>
+                    `;
                 gallery.appendChild(div);
             });
         }
@@ -515,5 +518,28 @@
         loadImages();
         loadSiteData();
     </script>
+
+    <script>
+        document.getElementById('resetColorsBtn').addEventListener('click', async () => {
+            if (!confirm("Are you sure you want to reset all colors to default?")) return;
+
+            try {
+                const response = await fetch('/api/reset-colors', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+                document.getElementById('resetStatus').textContent = result.success
+                    ? "✅ Colors reset to default!"
+                    : "❌ Reset failed.";
+
+            } catch (err) {
+                console.error("Reset error:", err);
+                document.getElementById('resetStatus').textContent = "❌ Reset failed.";
+            }
+        });
+    </script>
+
 </body>
 </html>

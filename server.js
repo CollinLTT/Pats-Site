@@ -184,6 +184,23 @@ app.post('/api/update-site-data', requireLogin, async (req, res) => {
     }
 });
 
+app.post('/api/reset-colors', requireLogin, async (req, res) => {
+    try {
+        let data = await getSiteData();
+        data.colors = {
+            background: "linear-gradient(-45deg, #1a0f1f, #2b0f2e, #1f0f2b, #2e0f1c)",
+            linkButton: "linear-gradient(135deg, #ff7de9, #ff4fa6)",
+            gallery: ""
+        };
+        await data.save();
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Error resetting colors:', err);
+        res.status(500).json({ success: false, error: 'Reset failed' });
+    }
+});
+
+
 // ====== Upload & Gallery APIs ======
 app.post('/admin/upload', requireLogin, upload.single('image'), async (req, res) => {
     try {
