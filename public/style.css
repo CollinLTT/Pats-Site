@@ -255,7 +255,7 @@ body.admin-open .hamburger span:nth-child(3) {
         align-items: center;
         gap: 10px;
         padding: 12px 20px;
-        border-radius: 20px;
+        border-radius: 45px;
         font-weight: bold;
         color: #ffc8f8;
         text-decoration: none;
@@ -268,9 +268,10 @@ body.admin-open .hamburger span:nth-child(3) {
 
         .social-links a:hover,
         .social-links a:focus {
-            transform: translateY(-2px) scale(1.02);
+            animation: wiggle 0.6s ease-in-out;
             box-shadow: 0 0 20px rgba(255, 20, 147, 0.4);
         }
+
 
     .social-links .onlyfans i {
         color: #00aff0;

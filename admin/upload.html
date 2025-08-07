@@ -261,6 +261,25 @@
         <button onclick="saveTagline()">Save Tagline</button>
     </div>
 
+    <!-- Color Settings Panel -->
+    <div class="panel">
+        <h1>Site Color Settings</h1>
+        <label>
+            Background Color:
+            <input type="color" id="colorBackground">
+        </label><br><br>
+        <label>
+            Link Button Color:
+            <input type="color" id="colorLinks">
+        </label><br><br>
+        <label>
+            Gallery Background Color:
+            <input type="color" id="colorGallery">
+        </label><br><br>
+        <button onclick="saveColors()">Save Colors</button>
+    </div>
+
+
     <!-- Social Links Panel -->
     <div class="panel" id="linksPanel">
         <h1>Social Links</h1>
@@ -320,24 +339,24 @@
                 const div = document.createElement('div');
                 div.className = 'link-group';
                 div.innerHTML = `
-              <div style="display:flex; align-items:center; margin-bottom:8px;">
-                <label style="width:120px; color:#ffc8f8; font-weight:bold;">Name:</label>
-                <input type="text" value="${link.name}" oninput="siteLinks[${i}].name=this.value" style="flex:1;">
-              </div>
-              <div style="display:flex; align-items:center; margin-bottom:8px;">
-                <label style="width:120px; color:#ffc8f8; font-weight:bold;">URL:</label>
-                <input type="url" value="${link.url}" oninput="siteLinks[${i}].url=this.value" style="flex:1;">
-              </div>
-              <div style="display:flex; align-items:center; margin-bottom:8px;">
-                <label style="width:120px; color:#ffc8f8; font-weight:bold;">Icon:</label>
-                <input type="text" value="${link.icon}" oninput="siteLinks[${i}].icon=this.value" style="flex:1;">
-              </div>
-              <div style="display:flex; align-items:center; margin-bottom:8px;">
-                <label style="width:120px; color:#ffc8f8; font-weight:bold;">Tagline:</label>
-                <input type="text" value="${link.smallTagline}" oninput="siteLinks[${i}].smallTagline=this.value" style="flex:1;">
-              </div>
-              <button class="remove-link-btn" onclick="removeLink(${i})" style="margin-top:5px;">Remove Link</button>
-            `;
+                  <div style="display:flex; align-items:center; margin-bottom:8px;">
+                    <label style="width:120px; color:#ffc8f8; font-weight:bold;">Name:</label>
+                    <input type="text" value="${link.name}" oninput="siteLinks[${i}].name=this.value" style="flex:1;">
+                  </div>
+                  <div style="display:flex; align-items:center; margin-bottom:8px;">
+                    <label style="width:120px; color:#ffc8f8; font-weight:bold;">URL:</label>
+                    <input type="url" value="${link.url}" oninput="siteLinks[${i}].url=this.value" style="flex:1;">
+                  </div>
+                  <div style="display:flex; align-items:center; margin-bottom:8px;">
+                    <label style="width:120px; color:#ffc8f8; font-weight:bold;">Icon:</label>
+                    <input type="text" value="${link.icon}" oninput="siteLinks[${i}].icon=this.value" style="flex:1;">
+                  </div>
+                  <div style="display:flex; align-items:center; margin-bottom:8px;">
+                    <label style="width:120px; color:#ffc8f8; font-weight:bold;">Tagline:</label>
+                    <input type="text" value="${link.smallTagline}" oninput="siteLinks[${i}].smallTagline=this.value" style="flex:1;">
+                  </div>
+                  <button class="remove-link-btn" onclick="removeLink(${i})" style="margin-top:5px;">Remove Link</button>
+                `;
                 linksContainer.appendChild(div);
             });
         }
@@ -351,6 +370,43 @@
             siteLinks.splice(index, 1);
             renderLinks();
         }
+
+        // Load saved colors into pickers
+        function loadColors(colors) {
+            document.getElementById('colorBackground').value = colors.background || '#1a0f1f';
+            document.getElementById('colorLinks').value = colors.linkButton || '#ff4fa6';
+            document.getElementById('colorGallery').value = colors.gallery || '#2b0f2e';
+        }
+
+        // Save updated colors to site-data
+        async function saveColors() {
+            try {
+                const res = await fetch('/api/site-data');
+                const data = await res.json();
+
+                data.colors = {
+                    background: document.getElementById('colorBackground').value,
+                    linkButton: document.getElementById('colorLinks').value,
+                    gallery: document.getElementById('colorGallery').value
+                };
+
+                const result = await fetch('/api/update-site-data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (result.ok) {
+                    showPopup('🎨 Colors saved!');
+                } else {
+                    showPopup('❌ Failed to save colors.');
+                }
+            } catch (err) {
+                console.error(err);
+                showPopup('❌ Failed to save colors.');
+            }
+        }
+
 
         // ---------- Save Links (Safe) ----------
         async function saveLinks() {
@@ -413,9 +469,9 @@
                 const div = document.createElement('div');
                 div.className = 'gallery-item';
                 div.innerHTML = `
-              <img src="${url}" alt="Uploaded image">
-              <button class="delete-btn" onclick="deleteImage('${url}')">X</button>
-            `;
+                  <img src="${url}" alt="Uploaded image">
+                  <button class="delete-btn" onclick="deleteImage('${url}')">X</button>
+                `;
                 gallery.appendChild(div);
             });
         }

@@ -93,9 +93,30 @@
                 const res = await fetch('/api/site-data');
                 const data = await res.json();
 
+                // ✅ Apply custom colors from MongoDB
+                if (data.colors) {
+                    if (data.colors.background) {
+                        document.body.style.background = data.colors.background;
+                    }
+
+                    if (data.colors.linkButton) {
+                        // Apply to all social link buttons
+                        document.querySelectorAll('.social-link-btn').forEach(btn => {
+                            btn.style.background = data.colors.linkButton;
+                        });
+                    }
+
+                    if (data.colors.gallery) {
+                        const gallery = document.querySelector('.slider-container');
+                        if (gallery) gallery.style.background = data.colors.gallery;
+                    }
+                }
+
+                // ✅ Set tagline
                 taglineEl.textContent = data.tagline;
                 linksContainer.innerHTML = '';
 
+                // ✅ Render social links
                 data.links.forEach(link => {
                     const a = document.createElement('a');
                     a.href = link.url;
@@ -122,6 +143,7 @@
             }
         });
     </script>
+
 
     <!-- Image Slider -->
     <div class="slider-container">

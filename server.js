@@ -24,8 +24,14 @@ const siteDataSchema = new mongoose.Schema({
     tagline: { type: String, default: "💖 Welcome to Patz Brat 💖" },
     views: { type: Number, default: 0 },
     links: { type: Array, default: [] },
-    images: { type: [String], default: [] }
+    images: { type: [String], default: [] },
+    colors: {
+        background: { type: String, default: "#1a0f1f" },
+        linkButton: { type: String, default: "#ff4fa6" },
+        gallery: { type: String, default: "#2b0f2e" }
+    }
 });
+
 
 const SiteData = mongoose.model('SiteData', siteDataSchema);
 
@@ -169,6 +175,7 @@ app.post('/api/update-site-data', requireLogin, async (req, res) => {
         let data = await getSiteData();
         data.tagline = req.body.tagline;
         data.links = req.body.links;
+        data.colors = req.body.colors || data.colors; // add this line
         await data.save();
         res.json({ success: true });
     } catch (err) {
