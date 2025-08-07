@@ -396,7 +396,7 @@ body.admin-open .hamburger span:nth-child(3) {
 }
 
 .floating-img {
-    max-height: 220px;
+    max-height: 280px;
     border-radius: 12px;
     box-shadow: 0 0 20px rgba(255, 110, 200, 0.4);
     border: 2px solid rgba(255, 255, 255, 0.1);
