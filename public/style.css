@@ -396,12 +396,9 @@ body.admin-open .hamburger span:nth-child(3) {
 }
 
 .slider-track {
-    position: absolute;
     display: flex;
     gap: 30px;
-    transition: transform 0.8s ease;
-    left: 50%;
-    transform: translateX(-50%);
+    transition: none; /* No longer needed */
 }
 
 .floating-img {
@@ -411,8 +408,9 @@ body.admin-open .hamburger span:nth-child(3) {
     border: 2px solid rgba(255, 255, 255, 0.1);
     opacity: 1;
     pointer-events: none;
-    animation: floatWiggle 5s ease-in-out infinite;
     transition: transform 0.8s ease, opacity 1s ease;
+    animation: floatWiggle 5s ease-in-out infinite;
+    transform: rotate(-6deg);
 }
 
     .floating-img:nth-child(2) {
@@ -425,6 +423,12 @@ body.admin-open .hamburger span:nth-child(3) {
         animation-delay: 2s;
     }
 
+    /* Slide animation */
+    .floating-img.slide-left {
+        transform: translateX(-100%);
+    }
+
+/* Wiggle animation */
 @keyframes floatWiggle {
     0%, 100% {
         transform: translateY(0) rotate(var(--angle, 6deg));
@@ -435,11 +439,13 @@ body.admin-open .hamburger span:nth-child(3) {
     }
 }
 
+/* Fade out (leaving) */
 .fade-out {
     opacity: 0;
     transform: translateY(20px) scale(0.95);
 }
 
+/* Fade in (arriving) */
 .fade-in {
     opacity: 0;
     transform: translateY(-20px) scale(1.05);
@@ -452,6 +458,7 @@ body.admin-open .hamburger span:nth-child(3) {
         transform: translateY(0) scale(1);
     }
 }
+
 
 
 /* =============================

@@ -13,7 +13,7 @@
 
             images = files;
 
-            // Load first 3 images
+            // Show first 3 images
             for (let i = 0; i < 3 && i < images.length; i++) {
                 const img = document.createElement('img');
                 img.className = 'floating-img';
@@ -21,7 +21,6 @@
                 sliderTrack.appendChild(img);
             }
 
-            // Slide + fade loop
             setInterval(() => {
                 const imgElements = sliderTrack.querySelectorAll('.floating-img');
                 const nextImage = images[(currentIndex + 3) % images.length];
@@ -30,37 +29,26 @@
                     const firstImg = imgElements[0];
                     firstImg.classList.add('fade-out');
 
-                    // Wait for fade-out before removing
+                    // Slide remaining images left
+                    for (let i = 1; i < imgElements.length; i++) {
+                        imgElements[i].classList.add('slide-left');
+                    }
+
                     setTimeout(() => {
                         firstImg.remove();
 
-                        // Append new image at end
+                        // Remove slide-left class after they shift
+                        const updatedImages = sliderTrack.querySelectorAll('.floating-img');
+                        updatedImages.forEach(img => img.classList.remove('slide-left'));
+
+                        // Add new image at the end
                         const newImg = document.createElement('img');
                         newImg.src = nextImage;
                         newImg.className = 'floating-img fade-in';
                         sliderTrack.appendChild(newImg);
 
-                        // Allow flexbox to reflow, then trigger smooth transform
-                        requestAnimationFrame(() => {
-                            sliderTrack.style.transition = 'none';
-                            sliderTrack.style.transform = 'translateX(0)';
-
-                            // Force layout flush
-                            void sliderTrack.offsetWidth;
-
-                            // Animate slide left by one image width + gap
-                            sliderTrack.style.transition = 'transform 0.8s ease';
-                            sliderTrack.style.transform = 'translateX(-250px)'; // adjust if your images are wider
-
-                            // After animation completes, reset transform
-                            setTimeout(() => {
-                                sliderTrack.style.transition = 'none';
-                                sliderTrack.style.transform = 'translateX(0)';
-                            }, 800);
-                        });
-
                         currentIndex = (currentIndex + 1) % images.length;
-                    }, 1000); // Match fade-out duration
+                    }, 1000); // matches fade-out & slide duration
                 }
             }, 4000);
         });
